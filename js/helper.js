@@ -85,7 +85,7 @@ function logClicks(x,y) {
 }
 
 $(document).click(function(loc) {
-  // your code goes here!
+	logClicks(loc.pageX, loc.pageY);
 });
 
 
@@ -105,6 +105,7 @@ function initializeMap() {
 
   var locations;        
 
+  var currInfoWindow;
   var mapOptions = {
     disableDefaultUI: true
   };
@@ -125,17 +126,19 @@ function initializeMap() {
 
     // adds the single location property from bio to the locations array
     locations.push(bio.contacts.location);
-    
+console.log(bio.contacts.location);    
     // iterates through school locations and appends each location to
     // the locations array
     for (var school in education.schools) {
       locations.push(education.schools[school].location);
+console.log(education.schools[school].location);
     }
 
     // iterates through work locations and appends each location to
     // the locations array
     for (var job in work.jobs) {
       locations.push(work.jobs[job].location);
+console.log(work.jobs[job].location);
     }
 
     return locations;
@@ -147,10 +150,12 @@ function initializeMap() {
   about a single location.
   */
   function createMapMarker(placeData) {
-
+console.log("in createMapMarker"+placeData);
     // The next lines save location data from the search result object to local variables
     var lat = placeData.geometry.location.k;  // latitude from the place service
-    var lon = placeData.geometry.location.B;  // longitude from the place service
+//Next two lines: change in Google map service API.
+//    var lon = placeData.geometry.location.B;  // longitude from the place service
+    var lon = placeData.geometry.location.D;  // longitude from the place service
     var name = placeData.formatted_address;   // name of the place from the place service
     var bounds = window.mapBounds;            // current boundaries of the map window
 
@@ -170,7 +175,11 @@ function initializeMap() {
 
     // hmmmm, I wonder what this is about...
     google.maps.event.addListener(marker, 'click', function() {
-      // your code goes here!
+		if (undefined != currInfoWindow) {
+			currInfoWindow.close();
+		}
+		infoWindow.open(map,marker);
+		currInfoWindow = infoWindow;
     });
 
     // this is where the pin actually gets added to the map.
@@ -233,11 +242,11 @@ Uncomment the code below when you're ready to implement a Google Map!
 */
 
 // Calls the initializeMap() function when the page loads
-//window.addEventListener('load', initializeMap);
+window.addEventListener('load', initializeMap);
 
 // Vanilla JS way to listen for resizing of the window 
 // and adjust map bounds
-//window.addEventListener('resize', function(e) {
+window.addEventListener('resize', function(e) {
   // Make sure the map bounds get updated on page resize
-//  map.fitBounds(mapBounds);
-//});
+  map.fitBounds(mapBounds);
+});
