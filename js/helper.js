@@ -13,7 +13,7 @@ These are HTML strings. As part of the course, you'll be using JavaScript functi
 replace the %data% placeholder text you see in them.
 */
 var HTMLheaderName = "<h1 id='name'>%data%</h1>";
-var HTMLheaderRole = "<span>%data%</span><hr/>";
+var HTMLheaderRole = "<span id='role'>%data%</span><hr/>";
 
 var HTMLcontactGeneric = "<li class='flex-item'><span class='orange-text'>%contact%</span><span class='white-text'>%data%</span></li>";
 var HTMLmobile = "<li class='flex-item'><span class='orange-text'>mobile</span><span class='white-text'>%data%</span></li>";
@@ -103,7 +103,7 @@ Start here! initializeMap() is called when page is loaded.
 */
 function initializeMap() {
 
-  var locations;        
+  var locations;
 
   var currInfoWindow;
   var mapOptions = {
@@ -114,31 +114,54 @@ function initializeMap() {
   // <div id="map">, which is appended as part of an exercise late in the course.
   map = new google.maps.Map(document.querySelector('#map'), mapOptions);
 
+  /*
+  * Place - an object which holds instances of the callback along with other information
+  * from our resume data that we want to display in the InfoView windows on the map.
+  *
+  * Note: this code is a bit tricky, because we need to have a way to get to the current
+  * object context within the callback function (so we can display the logo item pulled 
+  * from the JSON). The difficulty is that 'this' won't actually be available any more when
+  * we come back and execute the callback. So... we save 'this' into 'self', which persists
+  * until we call back into the callback.
+  */
+  var Place = (function() {
+    function Place(aName, aLocation, aLogo) {
+      var self = this;
+	  this.name = aName;
+      this.location = aLocation;
+      this.logo = aLogo;
+      this.callback = function(results, status) {
+        if (status == google.maps.places.PlacesServiceStatus.OK) {
+          createMapMarker(results[0], self)
+        }
+      }
+    }
+    return Place;
+  })();
 
   /*
   locationFinder() returns an array of every location string from the JSONs
   written for bio, education, and work.
   */
   function locationFinder() {
-    
     // initializes an empty array
     var locations = [];
 
     // adds the single location property from bio to the locations array
-    locations.push(bio.contacts.location);
-console.log(bio.contacts.location);    
+    locations.push(new Place(bio.name, bio.contacts.location, bio.contacts.logo));
+
     // iterates through school locations and appends each location to
     // the locations array
-    for (var school in education.schools) {
-      locations.push(education.schools[school].location);
-console.log(education.schools[school].location);
+    for (var schoolIndex in education.schools) {
+      var school = education.schools[schoolIndex];
+      locations.push(new Place(school.name, school.location, school.logo));
     }
 
     // iterates through work locations and appends each location to
     // the locations array
-    for (var job in work.jobs) {
-      locations.push(work.jobs[job].location);
-console.log(work.jobs[job].location);
+    for (var jobIndex in work.jobs) {
+      var job = work.jobs[jobIndex];
+      locations.push(new Place(job.employer, job.location, job.logo));
     }
 
     return locations;
@@ -149,12 +172,11 @@ console.log(work.jobs[job].location);
   placeData is the object returned from search results containing information
   about a single location.
   */
-  function createMapMarker(placeData) {
-console.log("in createMapMarker"+placeData);
+  function createMapMarker(placeData, place) {
     // The next lines save location data from the search result object to local variables
     var lat = placeData.geometry.location.k;  // latitude from the place service
-//Next two lines: change in Google map service API.
-//    var lon = placeData.geometry.location.B;  // longitude from the place service
+//Next two lines implement a change in Google map service API.
+//was:    var lon = placeData.geometry.location.B;  // longitude from the place service
     var lon = placeData.geometry.location.D;  // longitude from the place service
     var name = placeData.formatted_address;   // name of the place from the place service
     var bounds = window.mapBounds;            // current boundaries of the map window
@@ -166,20 +188,26 @@ console.log("in createMapMarker"+placeData);
       title: name
     });
     
-    // infoWindows are the little helper windows that open when you click
-    // or hover over a pin on a map. They usually contain more information
-    // about a location.
+    /*
+    *  infoWindows are the little helper windows that open when you click
+    *  or hover over a pin on a map. They usually contain more information
+    *  about a location.
+    *  In this case, we're adding a logo, the name of the entity, and the location - as returned by Google.
+	*/
+    var theContent = "<div class=\"popImage\">" +
+      "<img class=\"logo\" src=\""+place.logo+"\" alt=\"missing logo\"></img>" +
+      place.name + "</div>" + name;
     var infoWindow = new google.maps.InfoWindow({
-      content: name
+      content: theContent
     });
 
     // hmmmm, I wonder what this is about...
     google.maps.event.addListener(marker, 'click', function() {
-		if (undefined != currInfoWindow) {
-			currInfoWindow.close();
-		}
-		infoWindow.open(map,marker);
-		currInfoWindow = infoWindow;
+      if (undefined != currInfoWindow) {
+        currInfoWindow.close();
+      }
+      infoWindow.open(map,marker);
+      currInfoWindow = infoWindow;
     });
 
     // this is where the pin actually gets added to the map.
@@ -192,36 +220,43 @@ console.log("in createMapMarker"+placeData);
   }
 
   /*
-  callback(results, status) makes sure the search returned results for a location.
-  If so, it creates a new map marker for that location.
+  * Note: My code no longer uses the global callback function. See the Place object above...
+  * I've left this here for historical purposes - so that you, whoever you happen to be, can
+  * relate my callback changes back to the original interactive resume project from the Udacity
+  * JavaScript course.
+  *
+  * callback(results, status) makes sure the search returned results for a location.
+  * If so, it creates a new map marker for that location.
   */
-  function callback(results, status) {
-    if (status == google.maps.places.PlacesServiceStatus.OK) {
-      createMapMarker(results[0])
-    }
-  }
+  // function callback(results, status) {
+    // if (status == google.maps.places.PlacesServiceStatus.OK) {
+      // createMapMarker(results[0])
+    // }
+  // }
 
   /*
-  pinPoster(locations) takes in the array of locations created by locationFinder()
-  and fires off Google place searches for each location
+  pinPoster(places) takes in the array of Place objects created by locationFinder()
+  and fires off Google place searches for each place
+  Note: pinPoster has been updated to take an array of Place objects instead of raw
+  location strings...
   */
-  function pinPoster(locations) {
+  function pinPoster(places) {
 
     // creates a Google place search service object. PlacesService does the work of
     // actually searching for location data.
     var service = new google.maps.places.PlacesService(map);
     
-    // Iterates through the array of locations, creates a search object for each location
-    for (place in locations) {
+    // Iterates through the array of places, creates a search object for each location
+    for (place in places) {
 
       // the search request object
       var request = {
-        query: locations[place]
+        query: places[place].location
       }
 
       // Actually searches the Google Maps API for location data and runs the callback 
       // function with the search results after each search.
-      service.textSearch(request, callback);
+      service.textSearch(request, places[place].callback);
     }
   }
 

@@ -45,9 +45,8 @@ need to load. You'll see a lot of <link>s to CSS files for styles and
 </head>
 <body unresolved>
   <div id="main">
-  <!--Hello world!    You'll be deleting this line in the course -->
 
-    <!--
+  <!--
     Everything from here to the <script> tag below is the skeleton of your
     website. Your code will add information to each of the sections of the
     resume below. You can pretty easily figure out what each section will
@@ -106,7 +105,15 @@ need to load. You'll see a lot of <link>s to CSS files for styles and
       an opening and closing set of slash asterisks for block comments.
   */
 
-
+/*
+* Early on, when I was still figuring out what all of the various sections were intended to contain,
+* there was an exercise where we were supposed to change something about one of the sections if it
+* was empty. I can't even remember, any more, what it was we were supposed to change. But I decided
+* to colorize all of the various sections when they were empty, as an indicator of what, exactly,
+* was missing at any particular time. I've left this code in, even though a 'normal' user should
+* never see the results of it executing, just in case I make a mistake somewhere, and a section
+* disappears, I will know immediately which section is missing.
+*/
   if(document.getElementsByClassName("flex-item").length === 0) {
 //    document.getElementById("topContacts").style.display = "none";
     document.getElementById("topContacts").style.backgroundColor = "purple";
