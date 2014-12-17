@@ -6,23 +6,20 @@ var bio = {
 	"name":"Tom Hill",
 	"role":"Web Developer",
 	"pictureURL": "images/me.jpg",
-	"welcomeMessage": "Welcome to my resume page! As with most things that programmer types do," +
-			" it's a \"work in progress\", so don't be surprised to find bits and pieces that aren't complete.<br>" +
-			"I worked this up as an exercise in the Udacity JavaScript course," +
-			" and I haven't gotten back to it since. There should be quite a bit more job history," +
-			" and a bunch more skills listed...",
+	"welcomeMessage": "Welcome to my resume page! As with most things that programmer types do, it's a \"work in progress\", so don't be surprised to find bits and pieces that aren't complete.<br>I worked this up as an exercise in the Udacity JavaScript course, and I haven't gotten back to it since. There should be quite a bit more job history, and a bunch more skills listed...",
 	"skills": ["html", "css", "git", "JavaScript", "jQuery"],
 	"contacts": {
 		"tn":"847-670-9179",
 		"mobile":"847-345-7275",
 		"email":"thillii@yahoo.com",
-//		"twitter":"Coming Soon",
 		"github":"https://github.com/teh2",
-//		"blog":"Coming Soon",
 		"location":"Prospect Heights, IL",
 		"logo":"images/T2_logo.jpg"
 		}
 	};
+//Note: more lines for the "contacts" section:
+//		"twitter":"Coming Soon",
+//		"blog":"Coming Soon",
 
 bio.display = function() {
 	//Role
@@ -172,7 +169,8 @@ var education = {
 			"logo":"images/UofI_logo.jpg",
 			"degree":"BS",
 			"majors":["Computer Science", "Electronic Music"],
-			"datesAttended":"1979-1983"
+			"datesAttended":"1979-1983",
+			"url":"http://illinois.edu"
 		},
 		{
 			"name":"University of Illinois",
@@ -180,7 +178,8 @@ var education = {
 			"logo":"images/UofI_logo.jpg",
 			"degree":"MS-partial",
 			"majors":["Computer Science"],
-			"datesAttended":"2000-2003"
+			"datesAttended":"2000-2003",
+			"url":"http://illinois.edu"
 		},
 		{
 			"name":"Udacity",
@@ -188,7 +187,8 @@ var education = {
 			"logo":"images/Udacity_logo.jpg",
 			"degree":"NanoDegree",
 			"majors":["Front End Web Developer"],
-			"datesAttended":"2014"
+			"datesAttended":"2014",
+			"url":"https://www.udacity.com"
 		}
 	],
 	"onlineCourses": [
@@ -215,6 +215,24 @@ var education = {
 			"school":"Udacity",
 			"datesAttended":"2014",
 			"url":"https://www.udacity.com/course/ud804"
+		},
+		{
+			"title":"Intro to jQuery",
+			"school":"Udacity",
+			"datesAttended":"2014",
+			"url":"https://www.udacity.com/course/ud245"
+		},
+		{
+			"title":"Object-Oriented JavaScript",
+			"school":"Udacity",
+			"datesAttended":"2014",
+			"url":"https://www.udacity.com/course/ud015"
+		},
+		{
+			"title":"HTML5 Canvas",
+			"school":"Udacity",
+			"datesAttended":"2014",
+			"url":"https://www.udacity.com/course/ud292"
 		}
 	]};
 
@@ -224,7 +242,7 @@ education.display = function() {
 			$("#education").append(HTMLschoolStart);
 			var school = education.schools[schoolIndex];
 			$(".education-entry:last").append(
-				HTMLschoolName.replace("%data%", school.name) +
+				HTMLschoolName.replace("%data%", school.name).replace("%url%", school.url) +
 				HTMLschoolDegree.replace("%data%", school.degree));
 			$(".education-entry:last").append(HTMLschoolDates.replace("%data%", school.datesAttended));
 			$(".education-entry:last").append(HTMLschoolLocation.replace("%data%", school.location));
@@ -236,13 +254,17 @@ education.display = function() {
 	$("#education").append(HTMLonlineClasses);
 	if (undefined != education.onlineCourses) {
 		for (var courseIndex in education.onlineCourses) {
+console.log("Online-"+courseIndex+"--"+education.onlineCourses.length);
 			$("#education").append(HTMLschoolStart);
 			var course = education.onlineCourses[courseIndex];
 			$(".education-entry:last").append(
-				HTMLonlineTitle.replace("%data%", course.title) +
+				HTMLonlineTitle.replace("%data%", course.title).replace("%url%", course.url) +
 				HTMLonlineSchool.replace("%data%", course.school));
 			$(".education-entry:last").append(HTMLonlineDates.replace("%data%", course.datesAttended));
-			$(".education-entry:last").append(HTMLonlineURL.replace("%data%", course.url));
+			if (courseIndex < (education.onlineCourses.length - 1)) {
+				$(".education-entry:last").append("<br>");
+			};
+//			$(".education-entry:last").append(HTMLonlineURL.replace("%data%", course.url).replace("%url%", course.url));
 		}
 	}
 };
