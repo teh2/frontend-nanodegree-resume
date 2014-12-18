@@ -254,7 +254,6 @@ education.display = function() {
 	$("#education").append(HTMLonlineClasses);
 	if (undefined != education.onlineCourses) {
 		for (var courseIndex in education.onlineCourses) {
-console.log("Online-"+courseIndex+"--"+education.onlineCourses.length);
 			$("#education").append(HTMLschoolStart);
 			var course = education.onlineCourses[courseIndex];
 			$(".education-entry:last").append(
